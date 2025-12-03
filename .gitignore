@@ -12,3 +12,5 @@
 # Node-asar Yarn cache (if any)
 .yarn/
 
+# Do not track upstream node-asar
+/node-asar/
