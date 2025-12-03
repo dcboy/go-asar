@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Go build outputs
+/bin/
+
+# Temp outputs used in local verification
+/tmp.extract/
+/tmp.packthis.asar
+*.asar
+
+# Node-asar Yarn cache (if any)
+.yarn/
+
