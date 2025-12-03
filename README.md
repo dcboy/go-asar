@@ -90,6 +90,43 @@ func main() {
 
 ---
 
+## CLI 子命令与选项
+
+- pack
+  - 语法：`asar pack <dir> <output> [--ordering <file>] [--unpack <glob>] [--unpack-dir <glob|prefix>] [--exclude-hidden]`
+  - 说明：
+    - `--ordering <file>` 指定插入顺序文件（每行一个路径，支持 `a:b` 前缀格式，行为与 node-asar 对齐）
+    - `--unpack <glob>` 匹配到的文件不打包，直接复制到 `<output>.unpacked`
+    - `--unpack-dir <glob|prefix>` 匹配到的目录或以该前缀开头的目录不打包，目录内文件复制到 `<output>.unpacked`
+    - `--exclude-hidden` 排除隐藏文件（任一路径段首字符为 `.`），与 node-asar 的 `exclude-hidden` 一致
+  - 示例：
+    - `./bin/go-asar pack ./app ./app.asar`
+    - `./bin/go-asar pack ./app ./app.asar --exclude-hidden`
+    - `./bin/go-asar pack ./app ./app.asar --ordering ./ordering.txt`
+    - `./bin/go-asar pack ./app ./app.asar --unpack "*.png"`
+    - `./bin/go-asar pack ./app ./app.asar --unpack-dir "assets/**"`
+
+- list
+  - 语法：`asar list <archive> [-i | --is-pack]`
+  - 说明：开启 `--is-pack` 时，在每个路径前输出 `pack   :` 或 `unpack :` 标记
+  - 示例：
+    - `./bin/go-asar list ./app.asar`
+    - `./bin/go-asar list ./app.asar --is-pack`
+
+- extract-file
+  - 语法：`asar extract-file <archive> <filename>`
+  - 说明：提取单个文件到当前目录的 `basename(filename)`，与 node-asar 行为一致
+  - 示例：
+    - `./bin/go-asar extract-file ./app.asar dir1/file1.txt`
+
+- extract
+  - 语法：`asar extract <archive> <dest>`
+  - 说明：解压整个 `.asar` 到指定目录
+  - 示例：
+    - `./bin/go-asar extract ./app.asar ./unpacked`
+
+---
+
 ## 设计与实现
 
 - 头部格式：

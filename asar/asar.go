@@ -47,12 +47,7 @@ func CreatePackageWithOptions(src, dest string, options CreateOptions) error {
 		options.Pattern = "/**/*"
 	}
 	absSrc, _ := filepath.Abs(src)
-	includeDot := true
-	if options.Dot {
-		includeDot = true
-	} else {
-		includeDot = true
-	}
+	includeDot := options.Dot
 	files, meta, err := Crawl(filepath.Join(absSrc), includeDot)
 	if err != nil {
 		return err
@@ -142,10 +137,19 @@ func CreatePackageFromFiles(src, dest string, filenames []string, metadata map[s
 			metadata[filename] = typ
 			m = typ
 		}
+		relAll := relPath(src, filename)
+		if !options.Dot {
+			if strings.HasPrefix(filepath.Base(relAll), ".") {
+				if m.Type == "directory" {
+					return nil
+				}
+				return nil
+			}
+		}
 		switch m.Type {
 		case "directory":
-			su := shouldUnpackPath(relPath(src, filename), "", options.UnpackDir)
-			ensureDir(root, relPath(src, filename), su)
+			su := shouldUnpackPath(relAll, "", options.UnpackDir)
+			ensureDir(root, relAll, su)
 		case "file":
 			su := shouldUnpackPath(relPath(src, filepath.Dir(filename)), options.Unpack, options.UnpackDir)
 			files = append(files, struct {
@@ -153,7 +157,7 @@ func CreatePackageFromFiles(src, dest string, filenames []string, metadata map[s
 				unpack   bool
 			}{filename, su})
 			// 创建文件节点并填充元数据
-			rel := relPath(src, filename)
+			rel := relAll
 			dir := ensureDir(root, relPath(src, filepath.Dir(filename)), false)
 			name := filepath.Base(rel)
 			fe := &FilesystemFileEntry{Unpacked: su, Size: int(m.Stat.Size())}

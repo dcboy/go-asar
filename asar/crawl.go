@@ -27,10 +27,18 @@ func Crawl(root string, includeDot bool) ([]string, map[string]*CrawledFileType,
     files := make([]string, 0)
     err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
         if err != nil { return err }
-        // 过滤隐藏文件（可选）
-        if !includeDot {
-            base := filepath.Base(path)
-            if len(base) > 0 && base[0] == '.' && path != root { return nil }
+        // 过滤隐藏（任一路径段以 . 开头）
+        if !includeDot && path != root {
+            rel, _ := filepath.Rel(root, path)
+            parts := filepath.SplitList(filepath.ToSlash(rel))
+            // SplitList 不适合通用，这里按 '/'
+            parts = splitBySlash(rel)
+            for _, p := range parts {
+                if len(p) > 0 && p[0] == '.' {
+                    if info.IsDir() { return filepath.SkipDir }
+                    return nil
+                }
+            }
         }
         if path == root { return nil }
         typ, err := DetermineFileType(path)
@@ -45,3 +53,18 @@ func Crawl(root string, includeDot bool) ([]string, map[string]*CrawledFileType,
 
 // StreamGenerator 为生成读取流的函数类型
 type StreamGenerator func() (io.ReadCloser, error)
+
+func splitBySlash(s string) []string {
+    s = filepath.ToSlash(s)
+    out := make([]string, 0)
+    cur := 0
+    b := []byte(s)
+    for i := 0; i < len(b); i++ {
+        if b[i] == '/' {
+            out = append(out, string(b[cur:i]))
+            cur = i + 1
+        }
+    }
+    out = append(out, string(b[cur:]))
+    return out
+}
