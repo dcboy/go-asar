@@ -1,5 +1,7 @@
 # go-asar
 
+中文 | [English](README.en.md)
+
 Go 语言实现的 ASAR 打包/解包库与命令行工具，功能对齐 Electron 官方 `asar`（node-asar）。可用于：
 
 - 打包任意应用目录为 `.asar`
