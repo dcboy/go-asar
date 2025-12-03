@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,7 +33,7 @@ jobs:
           EXE=""
           if [ "${{ matrix.goos }}" = "windows" ]; then EXE=".exe"; fi
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/go-asar-${{ matrix.goos }}-${{ matrix.goarch }}${EXE} ./cmd/asar
-      
+
       - name: Package artifact
         id: pkg
         shell: bash
@@ -49,6 +52,5 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ steps.pkg.outputs.asset }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fail_on_unmatched_files: true
