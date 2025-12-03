@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        goos: [linux, darwin, windows]
+        goarch: [amd64, arm64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Build binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          EXE=""
+          if [ "${{ matrix.goos }}" = "windows" ]; then EXE=".exe"; fi
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/go-asar-${{ matrix.goos }}-${{ matrix.goarch }}${EXE} ./cmd/asar
+      
+      - name: Package artifact
+        id: pkg
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            ASSET="dist/go-asar-${{ matrix.goos }}-${{ matrix.goarch }}.zip"
+            cd dist && zip -q $(basename "$ASSET") go-asar-${{ matrix.goos }}-${{ matrix.goarch }}.exe && cd -
+          else
+            ASSET="dist/go-asar-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz"
+            tar -C dist -czf "$ASSET" go-asar-${{ matrix.goos }}-${{ matrix.goarch }}
+          fi
+          echo "asset=$ASSET" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ steps.pkg.outputs.asset }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
