@@ -2,6 +2,10 @@
 
 中文 | [English](README.en.md)
 
+![CI](https://github.com/dcboy/go-asar/actions/workflows/ci.yml/badge.svg)
+![Go](https://img.shields.io/badge/Go-1.21-00ADD8?logo=go)
+![License](https://img.shields.io/badge/license-MIT-blue)
+
 Go 语言实现的 ASAR 打包/解包库与命令行工具，功能对齐 Electron 官方 `asar`（node-asar）。可用于：
 
 - 打包任意应用目录为 `.asar`

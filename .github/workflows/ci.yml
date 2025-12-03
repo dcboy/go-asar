@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Go version
+        run: go version
+
+      - name: Build all packages
+        run: go build ./...
+
+      - name: Build CLI
+        run: go build -o ./bin/go-asar ./cmd/asar
+
+      - name: Pack and Extract smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci-test/app/dir1 ci-test/app/dir2
+          echo "hello" > ci-test/app/file0.txt
+          echo "world" > ci-test/app/dir1/file1.txt
+          echo "go-asar" > ci-test/app/dir2/file2.txt
+          ./bin/go-asar pack ci-test/app ci-test/app.asar
+          ./bin/go-asar extract ci-test/app.asar ci-test/out
+          diff -r ci-test/app ci-test/out
+
