@@ -2,7 +2,6 @@ package asar
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -87,9 +86,7 @@ func CreatePackageFromFiles(src, dest string, filenames []string, metadata map[s
 				} else {
 					line = strings.TrimSpace(line)
 				}
-				if strings.HasPrefix(line, "/") {
-					line = line[1:]
-				}
+				line = strings.TrimPrefix(line, "/")
 				comps := strings.Split(line, string(os.PathSeparator))
 				cur := src
 				for _, c := range comps {
