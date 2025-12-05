@@ -197,7 +197,7 @@ func (fsys *Filesystem) InsertFile(p string, streamGenerator func() (ioReadSeeke
 // InsertLink 插入符号链接节点，校验链接不越界
 func (fsys *Filesystem) InsertLink(p string, shouldUnpack bool, parentPath string, symlink string, src string) (string, error) {
 	link := fsys.resolveLink(src, parentPath, symlink)
-	if hasParentOutOf(src, link) {
+	if hasParentOutOf(link) {
 		return "", errors.New(p + ": file \"" + link + "\" links out of the package")
 	}
 	node := fsys.searchNodeFromPath(p).(*FilesystemLinkEntry)
@@ -319,7 +319,7 @@ func hasUnpacked(e FilesystemEntry) bool {
 	}
 }
 
-func hasParentOutOf(base, rel string) bool {
+func hasParentOutOf(rel string) bool {
 	// 如果 rel 以 ".." 开头则认为越界
 	return len(rel) >= 2 && rel[:2] == ".."
 }
