@@ -204,7 +204,6 @@ func CreatePackageFromFiles(src, dest string, filenames []string, metadata map[s
 			return err
 		}
 	}
-	fmt.Println("文件条目:", len(files), "链接条目:", len(links))
 	// 写入 header
 	tmpFS := &Filesystem{}
 	tmpFS.SetHeader(root, 0)
