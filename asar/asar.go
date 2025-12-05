@@ -371,8 +371,6 @@ func isOutOf(base, p string) bool {
 	return strings.HasPrefix(filepath.ToSlash(r), "..")
 }
 
-func mustStat(p string) os.FileInfo { fi, _ := os.Lstat(p); return fi }
-
 func mustRealpath(p string) string {
 	a, _ := filepath.EvalSymlinks(p)
 	if a == "" {
