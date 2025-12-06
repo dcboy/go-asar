@@ -2,7 +2,6 @@ package asar
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -87,9 +86,7 @@ func CreatePackageFromFiles(src, dest string, filenames []string, metadata map[s
 				} else {
 					line = strings.TrimSpace(line)
 				}
-				if strings.HasPrefix(line, "/") {
-					line = line[1:]
-				}
+				line = strings.TrimPrefix(line, "/")
 				comps := strings.Split(line, string(os.PathSeparator))
 				cur := src
 				for _, c := range comps {
@@ -204,7 +201,6 @@ func CreatePackageFromFiles(src, dest string, filenames []string, metadata map[s
 			return err
 		}
 	}
-	fmt.Println("文件条目:", len(files), "链接条目:", len(links))
 	// 写入 header
 	tmpFS := &Filesystem{}
 	tmpFS.SetHeader(root, 0)
@@ -374,8 +370,6 @@ func isOutOf(base, p string) bool {
 	r, _ := filepath.Rel(base, p)
 	return strings.HasPrefix(filepath.ToSlash(r), "..")
 }
-
-func mustStat(p string) os.FileInfo { fi, _ := os.Lstat(p); return fi }
 
 func mustRealpath(p string) string {
 	a, _ := filepath.EvalSymlinks(p)
